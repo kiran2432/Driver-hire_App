@@ -1,0 +1,26 @@
+# Zero-setup local profile: in-memory H2 (PostgreSQL mode), demo data, relaxed cookie.
+# NEVER use this profile in production.
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:driverhire;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+server:
+  forward-headers-strategy: none
+
+app:
+  jwt:
+    secret: dev-only-secret-do-not-use-in-production-0123456789
+  cors:
+    allowed-origins: http://localhost:5173
+  cookie:
+    secure: false
+
+logging:
+  level:
+    com.driverhire: DEBUG

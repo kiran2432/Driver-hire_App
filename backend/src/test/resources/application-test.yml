@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:driverhire-test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+server:
+  forward-headers-strategy: none
+
+app:
+  jwt:
+    secret: test-secret-test-secret-test-secret-test-secret
+  cors:
+    allowed-origins: ""
+  rate-limit:
+    auth-per-minute: 100000
+  cookie:
+    secure: false

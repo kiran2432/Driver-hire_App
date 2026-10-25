@@ -1,0 +1,72 @@
+# Base configuration = production-like. Everything environment-specific comes from env vars,
+# and the app refuses to start if a required one is missing (no silent fallback to an in-memory DB).
+#
+# Required in production: DB_URL, DB_USER, DB_PASSWORD, JWT_SECRET
+# Local development:      run with  -Dspring-boot.run.profiles=dev  (H2 in memory, see application-dev.yml)
+
+spring:
+  application:
+    name: driver-hire
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      connection-timeout: 10000
+  jpa:
+    open-in-view: false
+    hibernate:
+      # The schema is owned by Flyway; Hibernate only checks that entities match it.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+server:
+  port: 8080
+  shutdown: graceful
+  # Trust X-Forwarded-* from private-network proxies (nginx / ingress) so rate limiting sees real client IPs.
+  forward-headers-strategy: native
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+    include-exception: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+app:
+  jwt:
+    # >= 32 chars. Generate with: openssl rand -base64 48
+    secret: ${JWT_SECRET:}
+    issuer: driver-hire
+    access-ttl: 15m
+    refresh-ttl: 14d
+  cors:
+    # Only needed if the browser app is served from a different origin than the API.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+  rate-limit:
+    auth-per-minute: ${AUTH_RATE_LIMIT_PER_MINUTE:30}
+  cookie:
+    # Refresh-token cookie "Secure" flag. Keep true behind HTTPS (browsers also allow it on http://localhost).
+    secure: ${COOKIE_SECURE:true}
+
+logging:
+  level:
+    root: INFO
+    com.driverhire: INFO
